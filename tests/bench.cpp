@@ -15,6 +15,12 @@
 
 struct FibMethod
 {
+	// Mostly used to protect against how bad the 
+	// recursive algorithm performs
+	virtual std::size_t Limit() const
+	{
+		return -1U;
+	}
 	virtual const char* GetName() const = 0;
 	virtual std::uint64_t operator()(std::uint64_t n) = 0;
 };
@@ -23,6 +29,10 @@ namespace Methods
 {
 struct Recursive : FibMethod
 {
+	std::size_t Limit() const
+	{
+		return 23;
+	}
 	const char* GetName() const override
 	{
 		return "Recursive";
@@ -69,6 +79,8 @@ const static std::unique_ptr<FibMethod> FibMethods[] = {
 	std::make_unique<Methods::Stack2>()
 };
 
+
+#define ColumnWidth 18
 int main()
 {
 	std::cout << std::fixed << std::setprecision(2);
@@ -78,26 +90,38 @@ int main()
 	std::cout << "n\t|";
 	for( std::size_t i = 0; i < std::extent<decltype(FibMethods)>::value; ++i )
 	{
-		std::cout << std::setw(12) << FibMethods[i]->GetName();
+		std::cout << std::setw(ColumnWidth) << FibMethods[i]->GetName();
 	}
 	std::cout << std::endl;
 
 
-	for( std::uint64_t n = 0; n < 12; ++n )
+	for( std::uint64_t n = 0; n < std::extent<decltype(FibMod64)>::value; ++n )
 	{
 		std::cout << n << "\t|";
 		for( std::size_t i = 0; i < std::extent<decltype(FibMethods)>::value; ++i )
 		{
+			// This is just here to protect against the massive runtime of the recursive method
+			if( n >= FibMethods[i]->Limit() )
+			{
+				std::cout << std::setw(ColumnWidth) << "---|";
+				continue;
+			}
+
 			const auto BenchMethod = [](std::size_t i, std::uint64_t n) -> std::uint64_t
 			{
 				return (*FibMethods[i])(n);
 			};
-
 			const auto BenchResult = Bench<>::BenchResult(BenchMethod, i, n);
 			const auto Time        = std::get<0>(BenchResult).count();
 			const auto Value       = std::get<1>(BenchResult);
 
-			std::cout << std::setw(12) << Time;
+			std::cout 
+				// Verify
+				<< (Value == FibMod64[n] ? "\033[1;32m\O":"\033[1;31mX")
+				<< "\033[0m"
+				<< ':'
+				// Timing
+				<< std::setw(ColumnWidth - 3) << Time << '|';
 		}
 		std::cout << std::endl;
 	}
