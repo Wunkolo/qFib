@@ -1,0 +1,6 @@
+# Visual studio + Visual Studio Code files
+.vs
+.vscode
+
+# Standard CMake out-of-source builds
+build
