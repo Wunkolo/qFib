@@ -106,12 +106,7 @@ int main()
 				std::cout << std::setw(ColumnWidth) << "---|";
 				continue;
 			}
-
-			const auto BenchMethod = [](std::size_t i, std::uint64_t n) -> std::uint64_t
-			{
-				return (*FibMethods[i])(n);
-			};
-			const auto BenchResult = Bench<>::BenchResult(BenchMethod, i, n);
+			const auto BenchResult = Bench<>::BenchResult( *FibMethods[i], n );
 			const auto Time        = std::get<0>(BenchResult).count();
 			const auto Value       = std::get<1>(BenchResult);
 
