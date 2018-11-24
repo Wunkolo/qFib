@@ -15,6 +15,7 @@
 
 struct FibMethod
 {
+	~FibMethod(){}
 	// Mostly used to protect against how bad the 
 	// recursive algorithm performs
 	virtual std::size_t Limit() const
@@ -29,7 +30,7 @@ namespace Methods
 {
 struct Recursive : FibMethod
 {
-	std::size_t Limit() const
+	std::size_t Limit() const override
 	{
 		return 23;
 	}
@@ -112,7 +113,7 @@ int main()
 
 			std::cout 
 				// Verify
-				<< (Value == FibMod64[n] ? "\033[1;32m\O":"\033[1;31mX")
+				<< (Value == FibMod64[n] ? "\033[1;32m\u2714":"\033[1;31m\u2717")
 				<< "\033[0m"
 				<< ':'
 				// Timing
