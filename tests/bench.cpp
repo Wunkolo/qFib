@@ -98,12 +98,33 @@ struct Stack2Reg : FibMethod
 		return Val1;
 	}
 };
+
+struct MatrixExp : FibMethod
+{
+	const char* GetName() const override
+	{
+		return "Matrix Exponent";
+	}
+	std::uint64_t operator()(std::uint64_t n) override
+	{
+		const glm::mat<2,2,glm::u64,glm::aligned> Q(1,1,1,0);
+		glm::mat<2,2,glm::u64,glm::aligned> P = Q;
+
+		for( std::size_t i = 2; i < n; ++i )
+		{
+			P *= Q;
+		}
+
+		return P[0][0];
+	}
+};
 }
 
 const static std::unique_ptr<FibMethod> FibMethods[] = {
 	std::make_unique<Methods::Recursive>(),
 	std::make_unique<Methods::Stack2>(),
 	std::make_unique<Methods::Stack2Reg>(),
+	std::make_unique<Methods::MatrixExp>(),
 };
 
 
