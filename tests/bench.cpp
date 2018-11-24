@@ -73,11 +73,33 @@ struct Stack2 : FibMethod
 		return Stack[0];
 	}
 };
+// Similar to the last one, but without the stack-based array
+// allowing this to be register-only.
+// Causes "cmove,cmovne" to be emitted in gcc
+struct Stack2Reg : FibMethod
+{
+	const char* GetName() const override
+	{
+		return "2-Stack-Register";
+	}
+	std::uint64_t operator()(std::uint64_t n) override
+	{
+		std::uint64_t Val1, Val2;
+		Val1 = Val2 = 1U;
+
+		while( n-- > 2 )
+		{
+			(n & 1 ? Val2:Val1) = Val1 + Val2;
+		}
+		return Val1;
+	}
+};
 }
 
 const static std::unique_ptr<FibMethod> FibMethods[] = {
 	std::make_unique<Methods::Recursive>(),
-	std::make_unique<Methods::Stack2>()
+	std::make_unique<Methods::Stack2>(),
+	std::make_unique<Methods::Stack2Reg>(),
 };
 
 
@@ -121,7 +143,5 @@ int main()
 		}
 		std::cout << std::endl;
 	}
-
-	std::cin.get();
 	return EXIT_SUCCESS;
 }
