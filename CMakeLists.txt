@@ -27,7 +27,16 @@ elseif( CMAKE_COMPILER_IS_GNUCXX )
 	endif()
 endif()
 
+## GLM
+set( GLM_TEST_ENABLE OFF CACHE BOOL "Build GLM Unit Tests")
+add_subdirectory( extern/glm )
+
 add_executable(
 	qFib
 	tests/bench.cpp
+)
+target_link_libraries(
+	qFib
+	PRIVATE
+	glm
 )

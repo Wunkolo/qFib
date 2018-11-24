@@ -12,6 +12,9 @@
 
 #include <immintrin.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+
 #include "TestTools.hpp"
 
 struct FibMethod
