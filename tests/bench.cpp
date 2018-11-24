@@ -169,7 +169,7 @@ struct ChunMin : FibMethod
 	}
 };
 
-#if defined(__AVX512F__) || defined(_MSC_VER)
+#if defined(__AVX512F__)
 struct ChunMinAVX512 : FibMethod
 {
 	const char* GetName() const override
@@ -238,7 +238,7 @@ const static std::unique_ptr<FibMethod> FibMethods[] = {
 	std::make_unique<Methods::Stack2Reg>(),
 	std::make_unique<Methods::MatrixExp>(),
 	std::make_unique<Methods::ChunMin>(),
-#if defined(__AVX512F__) || defined(_MSC_VER)
+#if defined(__AVX512F__)
 	std::make_unique<Methods::ChunMinAVX512>(),
 #endif
 };
