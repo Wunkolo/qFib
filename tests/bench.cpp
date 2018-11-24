@@ -146,7 +146,7 @@ struct ChunMin : FibMethod
 		// the highest bit of n(mask = 2^(h-1) at first), and it will be shifted right
 		// iteratively to do `AND` operation with `n` to check `n_j` is odd or even,
 		// where n_j is defined below.
-		for( std::uint64_t mask = 1 << (h - 1); mask; mask >>= 1 )
+		for( std::uint64_t mask = 1ULL << (h - 1); mask; mask >>= 1 )
 		{ // Run h times!
 		// Let j = h-i (looping from i = 1 to i = h), n_j = floor(n / 2^j) = n >> j
 		// (n_j = n when j = 0), k = floor(n_j / 2), then a = F(k), b = F(k+1) now.
@@ -186,7 +186,7 @@ struct ChunMinAVX512 : FibMethod
 		#endif
 
 		__m128i ab = _mm_set_epi64x(1,0);
-		for( std::uint64_t mask = 1 << (h - 1); mask; mask >>= 1 )
+		for( std::uint64_t mask = 1ULL << (h - 1); mask; mask >>= 1 )
 		{
 			const __m128i ab_sq = _mm_mullo_epi64( ab, ab );
 			const __m128i cd = _mm_add_epi64(
