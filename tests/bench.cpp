@@ -7,6 +7,7 @@
 #include <iomanip>
 
 #include <memory>
+#include <limits>
 #include <type_traits>
 
 #include <immintrin.h>
@@ -20,7 +21,7 @@ struct FibMethod
 	// recursive algorithm performs
 	virtual std::size_t Limit() const
 	{
-		return -1U;
+		return std::numeric_limits<std::size_t>::max();
 	}
 	virtual const char* GetName() const = 0;
 	virtual std::uint64_t operator()(std::uint64_t n) = 0;
