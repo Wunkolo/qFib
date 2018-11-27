@@ -17,7 +17,7 @@ int main()
 {
 	std::cout << std::fixed << std::setprecision(2);
 
-	glm::u64vec4 FibState(3,2,1,1);
+	glm::u64vec4 FibState(2,1,1,0);
 
 	glm::mat<4,4,glm::u64,glm::aligned_highp> NextState(
 		4, 1, 2, 1,
@@ -26,7 +26,7 @@ int main()
 		0, 0, 0, 0
 	);
 
-	for( std::size_t i = 1; i < 300; i += 4 )
+	for( std::size_t i = 0; i < 300; i += 4 )
 	{
 		std::cout
 			<< std::setw(8) << (i + 0) << ':' << std::setw(32) << FibState.w << '\n'
