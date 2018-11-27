@@ -40,3 +40,13 @@ target_link_libraries(
 	PRIVATE
 	glm
 )
+
+add_executable(
+	fastGen
+	tests/fastgen.cpp
+)
+target_link_libraries(
+	fastGen
+	PRIVATE
+	glm
+)
