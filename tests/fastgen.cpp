@@ -17,9 +17,9 @@ int main()
 {
 	std::cout << std::fixed << std::setprecision(2);
 
-	glm::u32vec4 FibState(3,2,1,1);
+	glm::u64vec4 FibState(3,2,1,1);
 
-	glm::mat<4,4,glm::u32,glm::aligned_highp> NextState(
+	glm::mat<4,4,glm::u64,glm::aligned_highp> NextState(
 		4, 1, 2, 1,
 		4, 4, 1, 1,
 		1, 2, 0, 0,
@@ -29,10 +29,15 @@ int main()
 	for( std::size_t i = 1; i < 300; i += 4 )
 	{
 		std::cout
-			<< std::setw(8) << (i + 0) << ':' << std::setw(16) << FibState.w << '\n'
-			<< std::setw(8) << (i + 1) << ':' << std::setw(16) << FibState.z << '\n' 
-			<< std::setw(8) << (i + 2) << ':' << std::setw(16) << FibState.y << '\n' 
-			<< std::setw(8) << (i + 3) << ':' << std::setw(16) << FibState.x << '\n'; 
+			<< std::setw(8) << (i + 0) << ':' << std::setw(32) << FibState.w << '\n'
+			<< std::setw(8) << (i + 1) << ':' << std::setw(32) << FibState.z << '\n' 
+			<< std::setw(8) << (i + 2) << ':' << std::setw(32) << FibState.y << '\n' 
+			<< std::setw(8) << (i + 3) << ':' << std::setw(32) << FibState.x << '\n'; 
+
+		// This matrix multiplication uses nice and clean powers of two
+		// allowing the compiler to hopefully optimize the matrix multiplication
+		// into a pipelined sequence of 'lea' instructions:
+		// Such as ' lea r__, qword [r__ + r__ * {0,2,4}] '
 		FibState = NextState * FibState;
 	}
 
