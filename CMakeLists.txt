@@ -50,3 +50,8 @@ target_link_libraries(
 	PRIVATE
 	glm
 )
+
+add_executable(
+	terms
+	tests/terms.cpp
+)

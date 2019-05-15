@@ -13,13 +13,16 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
+using VectorT = glm::vec<4, glm::u64,glm::aligned_highp>;
+using MatrixT = glm::mat<4, 4, glm::u64,glm::aligned_highp>;
+
 int main()
 {
 	std::cout << std::fixed << std::setprecision(2);
 
-	glm::u64vec4 FibState(2,1,1,0);
+	VectorT FibState(2,1,1,0);
 
-	glm::mat<4,4,glm::u64,glm::aligned_highp> NextState(
+	MatrixT NextState(
 		4, 1, 2, 1,
 		4, 4, 1, 1,
 		1, 2, 0, 0,
