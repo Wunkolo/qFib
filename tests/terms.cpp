@@ -25,10 +25,10 @@ void ExpandTerm(
 		Terms.end(),
 		[]( const auto& CurTerm ) -> bool
 		{
-			const bool IsPowerTwo = !(CurTerm.second & (CurTerm.second - 1U));
+			const bool IsPowerTwo = !(CurTerm.second & (CurTerm.second - 1u));
 			const std::intmax_t Upper = -1;
 			const std::intmax_t Lower = -3;
-			const bool IsWithinRange = CurTerm.first < 0;
+			const bool IsWithinRange = CurTerm.first <= 0;
 			return IsPowerTwo && IsWithinRange;
 		}
 	);

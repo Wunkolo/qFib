@@ -13,8 +13,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
-using VectorT = glm::vec<4, glm::u64,glm::aligned_highp>;
-using MatrixT = glm::mat<4, 4, glm::u64,glm::aligned_highp>;
+using VectorT = glm::vec<4, glm::u64,glm::qualifier::packed_highp>;
+using MatrixT = glm::mat<4, 4, glm::u64,glm::qualifier::packed_highp>;
 
 int main()
 {

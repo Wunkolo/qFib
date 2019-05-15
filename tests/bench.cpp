@@ -107,8 +107,8 @@ struct MatrixExp : FibMethod
 	}
 	std::uint64_t operator()(std::uint64_t n) override
 	{
-		const glm::mat<2,2,glm::u64,glm::aligned> Q(1,1,1,0);
-		glm::mat<2,2,glm::u64,glm::aligned> P = Q;
+		const glm::mat<2,2,glm::u64,glm::qualifier::packed_highp> Q(1,1,1,0);
+		glm::mat<2,2,glm::u64,glm::qualifier::packed_highp> P = Q;
 
 		for( std::size_t i = 2; i < n; ++i )
 		{
