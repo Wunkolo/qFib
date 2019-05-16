@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <cstdio>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -10,34 +11,70 @@
 // < Offset, Coefficient >
 using TermMap = std::map<std::intmax_t,std::size_t>;
 
-void ExpandTerm(
-	TermMap& Terms,
-	std::intmax_t Term
+void PrintTerms (
+	const TermMap& Terms
 )
 {
-	// Split term into two lower terms
-	// F(n) = F(n - 1) + F(n - 2)
-	Terms[Term - 1] += Terms[Term];
-	Terms[Term - 2] += Terms[Term];
-	Terms.erase(Term);
-	const auto TermFail = std::find_if_not(
-		Terms.begin(),
-		Terms.end(),
-		[]( const auto& CurTerm ) -> bool
-		{
-			const bool IsPowerTwo = !(CurTerm.second & (CurTerm.second - 1u));
-			const std::intmax_t Upper = -1;
-			const std::intmax_t Lower = -3;
-			const bool IsWithinRange = CurTerm.first <= 0;
-			return IsPowerTwo && IsWithinRange;
-		}
-	);
-	if( TermFail != Terms.end() )
+	for( const auto& Term : Terms)
 	{
-		ExpandTerm(
-			Terms,
-			TermFail->first
-		);
+		std::printf("%4zu*F(n%+2i) ", Term.second,  Term.first);
+	}
+	std::putchar('\n');
+}
+
+const auto IsPow2 = [](std::size_t n) -> bool
+{
+	return (!(n & (n - 1u)));
+};
+
+void ExpandTerm(
+	TermMap& Terms,
+	std::intmax_t Offset,
+	std::size_t TailLimit
+)
+{
+	PrintTerms(Terms);
+	const auto IsCoefPow2 = []( const auto& CurTerm ) -> bool
+	{
+		// Coefficient must be power of two, including zero
+		return IsPow2(CurTerm.second);
+	};
+	const auto IsPrevTerm = []( const auto& CurTerm ) -> bool
+	{
+		// Offset must be samping from below 0
+		return CurTerm.first < 0;
+	};
+
+	// First, remove all positive terms
+	auto CurTerm = std::find_if_not(Terms.begin(), Terms.end(), IsPrevTerm);
+	while(CurTerm != Terms.end())
+	{
+		const std::intmax_t CurOffset = CurTerm->first;
+		const std::intmax_t CurCoef = CurTerm->second;
+		Terms[CurOffset - 1] += CurCoef;
+		Terms[CurOffset - 2] += CurCoef;
+		Terms.erase(CurOffset);
+		PrintTerms(Terms);
+		CurTerm = std::find_if_not(Terms.begin(), Terms.end(), IsPrevTerm);
+	}
+
+	// Second, break it down to work towards power-of-two coefficients
+	CurTerm = std::find_if_not(Terms.begin(), Terms.end(), IsCoefPow2);
+	while(CurTerm != Terms.end())
+	{
+		const std::intmax_t CurOffset = CurTerm->first;
+		std::intmax_t CurCoef = CurTerm->second;
+		const std::intmax_t Direction =
+		CurOffset > -static_cast<std::intmax_t>(TailLimit) ? 1: -1;
+		while( CurOffset >= 0 || !IsPow2(CurCoef) )
+		{
+			Terms[CurOffset + (1 * -Direction)] += Direction;
+			Terms[CurOffset + (2 * -Direction)] += Direction;
+			CurCoef -= Direction;
+		}
+		Terms.erase(CurOffset);
+		PrintTerms(Terms);
+		CurTerm = std::find_if_not(Terms.begin(), Terms.end(), IsCoefPow2);
 	}
 }
 
@@ -47,17 +84,9 @@ int main()
 	TermMap Terms;
 
 	// 1 * F(n+3)
-	Terms[3] = 1;
+	Terms[3] = 1u;
 
-	ExpandTerm(
-		Terms,
-		3
-	);
-
-	for( const auto& CurTerm : Terms )
-	{
-		std::cout << CurTerm.second << "*F(n" << CurTerm.first << "), ";
-	}
+	ExpandTerm(Terms, 3, 4);
 
 	return EXIT_SUCCESS;
 }
