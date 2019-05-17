@@ -65,38 +65,34 @@ void MatrixSIMD()
 	   << std::setw(8) << 2 << ':' << std::setw(32) << _mm_extract_epi32(FibState,2) << '\n'
 	   << std::setw(8) << 3 << ':' << std::setw(32) << _mm_extract_epi32(FibState,3) << '\n';
 
-	// The last one is 0, not needed
 	const __m128i NextState[3] = {
-		_mm_set_epi32( 2,  0,  1,  0),
+		//_mm_set_epi32(~0, ~0, ~0, ~0), same as multiplying vector by <0>
+		_mm_set_epi32( 0,  1, ~0, ~0),
 		_mm_set_epi32( 2,  2,  0,  0),
-		_mm_set_epi32( 0,  1, ~0, ~0)
-		// _mm_set_epi32(~0, ~0, ~0, ~0)
+		_mm_set_epi32( 2,  0,  1,  0)
 	};
 
 	for( std::size_t i = 0; i < 300; i += 4 )
 	{
 		const auto Start = std::chrono::high_resolution_clock::now();
 		__m128i Result = _mm_setzero_si128();
+		FibState = _mm_alignr_epi8(FibState, FibState, 4);
 		for( std::size_t i = 0; i < 3; ++i )
 		{
-			// Dot Product
 			const __m128i Product = _mm_sllv_epi32(
-				_mm_shuffle_epi32(
-					FibState,
-					0x00'55'AA'FF >> i * 8
-				),
-				NextState[i]
+				_mm_broadcastd_epi32(FibState), NextState[i]
 			);
+			FibState = _mm_alignr_epi8(_mm_setzero_si128(), FibState, 4);
 			Result = _mm_add_epi32(Result, Product);
 		}
 		const auto Stop = std::chrono::high_resolution_clock::now();
 		FibState = Result;
 		std::cout
 			<< (Stop - Start).count() << "ns |\n"
-			<< std::setw(8) << (i + 0) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,0) << '\n'
-			<< std::setw(8) << (i + 1) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,1) << '\n'
-			<< std::setw(8) << (i + 2) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,2) << '\n'
-			<< std::setw(8) << (i + 3) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,3) << '\n';
+			<< std::setw(8) << (i + 0) << ':' << std::setw(32) << (std::uint32_t)_mm_extract_epi32(FibState,0) << '\n'
+			<< std::setw(8) << (i + 1) << ':' << std::setw(32) << (std::uint32_t)_mm_extract_epi32(FibState,1) << '\n'
+			<< std::setw(8) << (i + 2) << ':' << std::setw(32) << (std::uint32_t)_mm_extract_epi32(FibState,2) << '\n'
+			<< std::setw(8) << (i + 3) << ':' << std::setw(32) << (std::uint32_t)_mm_extract_epi32(FibState,3) << '\n';
 	}
 }
 
