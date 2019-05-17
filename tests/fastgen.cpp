@@ -59,10 +59,10 @@ void MatrixSIMD()
 	__m128i FibState = _mm_set_epi32(2, 1, 1, 0);
 
 	const __m128i NextState[4] = {
-		_mm_set_epi32(4, 4, 1, 0),
-		_mm_set_epi32(1, 4, 2, 0),
-		_mm_set_epi32(2, 1, 0, 0),
-		_mm_set_epi32(1, 1, 0, 0)
+		_mm_set_epi32(2, 2, 0, ~0),
+		_mm_set_epi32(0, 2, 1, ~0),
+		_mm_set_epi32(1, 0, ~0, ~0),
+		_mm_set_epi32(0, 0, ~0, ~0)
 	};
 
 	std::cout
@@ -78,7 +78,7 @@ void MatrixSIMD()
 		for( std::size_t i = 0; i < 4; ++i )
 		{
 			// Dot Product
-			const __m128i Product = _mm_mullo_epi32(Vector, Matrix[i]);
+			const __m128i Product = _mm_sllv_epi32(Vector, Matrix[i]);
 			const __m128i PartialSum = _mm_hadd_epi32(Product, Product);
 			const __m128i Sum = _mm_hadd_epi32(PartialSum, PartialSum);
 			Result = _mm_blend_epi16(Result, Sum, 0b11'00'00'00 >> (i * 2));
