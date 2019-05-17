@@ -24,7 +24,7 @@ void Matrix()
 {
 	VectorT FibState(2, 1, 1, 0);
 
-	MatrixT NextState(
+	const MatrixT NextState(
 		4, 1, 2, 1,
 		4, 4, 1, 1,
 		1, 2, 0, 0,
@@ -58,12 +58,6 @@ void MatrixSIMD()
 {
 	__m128i FibState = _mm_set_epi32(2, 1, 1, 0);
 
-	const __m128i NextState[4] = {
-		_mm_set_epi32( 2,  0,  1,  0),
-		_mm_set_epi32( 2,  2,  0,  0),
-		_mm_set_epi32( 0,  1, ~0, ~0),
-		_mm_set_epi32(~0, ~0, ~0, ~0)
-	};
 
 	std::cout
 	   << std::setw(8) << 0 << ':' << std::setw(32) << _mm_extract_epi32(FibState,0) << '\n'
@@ -71,39 +65,38 @@ void MatrixSIMD()
 	   << std::setw(8) << 2 << ':' << std::setw(32) << _mm_extract_epi32(FibState,2) << '\n'
 	   << std::setw(8) << 3 << ':' << std::setw(32) << _mm_extract_epi32(FibState,3) << '\n';
 
-	// Integer matrix multiply
-	const auto Multiply4SIMD = [](const __m128i Matrix[4], const  __m128i Vector) -> __m128i
-	{
-		__m128i Result = _mm_setzero_si128();
-		for( std::size_t i = 0; i < 4; ++i )
-		{
-			// Dot Product
-			const __m128i Product = _mm_sllv_epi32(
-				_mm_shuffle_epi32(
-					Vector,
-					0b00'00'00'00'01'01'01'01'10'10'10'10'11'11'11'11 >> i * 8
-				),
-				Matrix[i]
-			);
-			Result = _mm_add_epi32(Result, Product);
-		}
-		return Result;
+	// The last one is 0, not needed
+	const __m128i NextState[3] = {
+		_mm_set_epi32( 2,  0,  1,  0),
+		_mm_set_epi32( 2,  2,  0,  0),
+		_mm_set_epi32( 0,  1, ~0, ~0)
+		// _mm_set_epi32(~0, ~0, ~0, ~0)
 	};
 
 	for( std::size_t i = 0; i < 300; i += 4 )
 	{
-		auto BenchResult = Bench<>::BenchResult(
-			Multiply4SIMD,
-			NextState,
-			FibState
-		);
-		FibState = std::get<1>(BenchResult);
+		const auto Start = std::chrono::high_resolution_clock::now();
+		__m128i Result = _mm_setzero_si128();
+		for( std::size_t i = 0; i < 3; ++i )
+		{
+			// Dot Product
+			const __m128i Product = _mm_sllv_epi32(
+				_mm_shuffle_epi32(
+					FibState,
+					0x00'55'AA'FF >> i * 8
+				),
+				NextState[i]
+			);
+			Result = _mm_add_epi32(Result, Product);
+		}
+		const auto Stop = std::chrono::high_resolution_clock::now();
+		FibState = Result;
 		std::cout
-			<< std::get<0>(BenchResult).count() << "ns | \n"
+			<< (Stop - Start).count() << "ns |\n"
 			<< std::setw(8) << (i + 0) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,0) << '\n'
-	   		<< std::setw(8) << (i + 1) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,1) << '\n'
-	   		<< std::setw(8) << (i + 2) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,2) << '\n'
-	   		<< std::setw(8) << (i + 3) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,3) << '\n';
+			<< std::setw(8) << (i + 1) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,1) << '\n'
+			<< std::setw(8) << (i + 2) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,2) << '\n'
+			<< std::setw(8) << (i + 3) << ':' << std::setw(32) << (unsigned)_mm_extract_epi32(FibState,3) << '\n';
 	}
 }
 
