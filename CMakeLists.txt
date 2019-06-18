@@ -17,8 +17,6 @@ if( MSVC )
 	add_compile_options( /W3 )
 elseif( CMAKE_COMPILER_IS_GNUCXX )
 	add_compile_options( -march=native )
-	add_compile_options( -Ofast )
-	add_compile_options( -ftree-vectorize )
 	add_compile_options( -Wall )
 	add_compile_options( -Wextra )
 	# Force colored diagnostic messages in Ninja's output
