@@ -135,6 +135,44 @@ void TermSIMD4(std::uint32_t N)
 		<< std::setw(8) << N << ':' << std::setw(32) << Results[N % 4] << '\n';
 }
 
+void cmchang(uint32_t n)
+{
+	const auto Start = std::chrono::high_resolution_clock::now();
+	// The position of the highest bit of n.
+	// So we need to loop `h` times to get the answer.
+	// Example: n = (Dec)50 = (Bin)00110010, then h = 6.
+	//                               ^ 6th bit from right side
+	//uint32_t h = 0;
+	//for (uint32_t i = n ; i ; ++h, i >>= 1);
+	const uint32_t h = 32 - __builtin_clz(n);
+
+	uint32_t a = 0; // F(0) = 0
+	uint32_t b = 1; // F(1) = 1
+	// There is only one `1` in the bits of `mask`. 
+	// The `1`'s position is same as
+	// the highest bit of n(mask = 2^(h-1) at first), 
+	// and it will be shifted right iteratively to do 
+	// `AND` operation with `n` to check `n / 2^j` is odd
+	// or even.
+	for (uint32_t mask = 1 << (h - 1) ; mask ; mask >>= 1) {
+		// Let j = h-i (looping from i = 1 to i = h),
+		// n_j = floor(n / 2^j) = n >> j (n_j = n when j = 0), 
+		// k = floor(n_j / 2), then a = F(k), b = F(k+1) now.
+		//const uint32_t c = a * (2 * b - a); // F(2k)=F(k) * [2*F(k+1)–F(k)]
+		const uint32_t c = 2 * a * b - a * a; // F(2k)=F(k) * [2*F(k+1)–F(k)]
+		const uint32_t d = a * a + b * b;   // F(2k+1) = F(k)^2 + F(k+1)^2
+
+		const bool odd = mask & n;
+		a = odd ? d : c;
+		b = odd ? c + d : d;
+	}
+
+	const auto Stop = std::chrono::high_resolution_clock::now();
+	std::cout
+		<< (Stop - Start).count() << "ns |\n"
+		<< std::setw(8) << n << ':' << std::setw(32) << a << '\n';
+}
+
 int main()
 {
 	std::cout << std::fixed << std::setprecision(2);
@@ -143,6 +181,7 @@ int main()
 	MatrixSIMD();
 	std::puts("---------");
 	TermSIMD4(29108);
+	cmchang(29108);
 
 	return EXIT_SUCCESS;
 }
