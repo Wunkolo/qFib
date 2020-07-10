@@ -8,6 +8,9 @@
 #include <map>
 #include <string>
 
+
+// Attempt at automatically generating optimal matrix coefficient terms
+
 // < Offset, Coefficient >
 using TermMap = std::map<std::intmax_t,std::size_t>;
 
